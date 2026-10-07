@@ -1,4 +1,7 @@
+import os
 import re
+import csv
+import json
 
 from datasets import load_dataset
 
@@ -7,11 +10,18 @@ from embedding_client import get_embedding, cosine_similarity
 
 
 # ============================================================
-# EXPERIMENT SETTINGS
+# CONFIGURATION
 # ============================================================
 
-NUM_QUESTIONS = 5
+# IMPORTANT:
+# Keep this at 5 initially.
+# After checking the results, change it to 50.
+NUM_QUESTIONS = 50
+
 NUM_NORMAL_AGENTS = 3
+
+CSV_FILE = "results/mcf_results.csv"
+JSON_FILE = "results/mcf_results.json"
 
 
 # ============================================================
@@ -21,253 +31,375 @@ NUM_NORMAL_AGENTS = 3
 NORMAL_PROMPTS = [
 
     """
-Solve the following mathematical problem step by step.
+Solve the following math problem step by step.
 
-Carefully identify all quantities and relationships in the problem.
-Perform the calculations carefully.
+Carefully identify all quantities and relationships.
+Pay attention to:
+- percentages
+- units
+- multiplication
+- division
+- quantities that occur multiple times
 
-At the very end, output exactly one line in this format:
+Check your arithmetic before giving the final answer.
+
+At the very end, output exactly:
 
 FINAL_ANSWER: <number>
 
-Do not write anything after the FINAL_ANSWER line.
+Do not write anything after this line.
+
+Question:
+{question}
 """,
 
     """
-Solve the following mathematical problem independently.
+Solve this math problem independently.
 
-Check the interpretation of the problem and verify every calculation.
+Reason carefully through the problem and verify every
+calculation before giving the final answer.
 
-At the very end, output exactly one line in this format:
+Pay special attention to:
+- quantities
+- percentages
+- units
+- repeated actions
+- multiplication and division
+
+At the very end, output exactly:
 
 FINAL_ANSWER: <number>
 
-Do not write anything after the FINAL_ANSWER line.
+Do not write anything after this line.
+
+Question:
+{question}
 """,
 
     """
-Solve the following mathematical problem step by step.
+Solve the following problem carefully.
 
-After completing the solution, perform a second check of your reasoning
-and arithmetic.
+First reason through the problem.
+Then perform a second check of your calculations
+and interpretation.
 
-At the very end, output exactly one line in this format:
+Make sure the final numerical answer follows
+directly from the reasoning.
+
+At the very end, output exactly:
 
 FINAL_ANSWER: <number>
 
-Do not write anything after the FINAL_ANSWER line.
+Do not write anything after this line.
+
+Question:
+{question}
 """
 ]
 
 
 # ============================================================
-# ADVERSARIAL / CHALLENGE AGENT PROMPT
+# ADVERSARIAL AGENT PROMPT
 # ============================================================
 
 ADVERSARIAL_PROMPT = """
-You are a challenge agent in a multi-agent mathematical reasoning system.
+You are a challenge agent in a multi-agent mathematical
+reasoning system.
 
-Your task is to construct ONE plausible but incorrect solution.
+Produce ONE plausible alternative solution to the problem.
 
-Do NOT solve the problem correctly.
+Look for a possible:
+- ambiguity
+- omitted quantity
+- arithmetic mistake
+- percentage mistake
+- interpretation mistake
 
-Follow these rules:
+Your answer should contain a complete reasoning path and
+ONE final numerical answer.
 
-1. Read the problem carefully.
-2. Identify one quantity, relationship, percentage, unit, or operation
-   that could realistically be misunderstood.
-3. Build your reasoning around that misunderstanding.
-4. Perform the calculations consistently with that interpretation.
-5. Produce ONE plausible incorrect numerical answer.
-6. Do not provide a corrected solution.
-7. Do not mention the correct answer.
-8. Do not say that your reasoning is wrong.
-9. Do not refuse the task.
-10. Do not use random numbers.
-11. The incorrect answer must come from a plausible reasoning mistake.
-12. Output only ONE final answer.
+Do not provide a second corrected solution.
 
-At the very end, output exactly one line in this format:
+Do not explain whether your answer is correct or incorrect.
+
+At the very end, output exactly:
 
 FINAL_ANSWER: <number>
 
-Do not write anything after the FINAL_ANSWER line.
+Do not write anything after this line.
 
 Question:
-
 {question}
 """
 
 
 # ============================================================
-# EXTRACT FINAL ANSWER
+# DIRECTORY SETUP
 # ============================================================
 
-def extract_final_answer(text):
+os.makedirs("results", exist_ok=True)
+
+
+# ============================================================
+# GSM8K GROUND-TRUTH EXTRACTION
+# ============================================================
+
+def extract_gsm8k_answer(text):
     """
-    Extract ONLY the number appearing after:
+    Extract the official GSM8K answer.
 
-        FINAL_ANSWER: <number>
+    GSM8K solutions normally end with:
 
-    We deliberately do not search arbitrary numbers in the reasoning.
-    This prevents numbers such as 6 inches, 40%, 3 days, etc.
-    from being incorrectly interpreted as the final answer.
+    #### <answer>
+
+    Example:
+        #### 18
+
+    This function ONLY uses that marker.
     """
 
-    if text is None:
+    if not text:
         return None
 
-    # Look specifically for FINAL_ANSWER
-    match = re.search(
-        r"FINAL_ANSWER\s*:\s*"
-        r"\$?\s*"
-        r"(-?\d[\d,]*(?:\.\d+)?)",
+    matches = re.findall(
+        r"####\s*(-?\d[\d,]*(?:\.\d+)?)",
+        text
+    )
+
+    if matches:
+        return matches[-1].replace(",", "")
+
+    return None
+
+
+# ============================================================
+# MODEL ANSWER EXTRACTION
+# ============================================================
+
+def extract_model_answer(text):
+    """
+    Extract the answer generated by an LLM.
+
+    We intentionally DO NOT use the last-number fallback,
+    because mathematical reasoning often contains many
+    numbers that are not the final answer.
+    """
+
+    if not text:
+        return None
+
+    # --------------------------------------------------------
+    # 1. FINAL_ANSWER has highest priority
+    # --------------------------------------------------------
+
+    matches = re.findall(
+        r"FINAL_ANSWER:\s*\$?\s*(-?\d[\d,]*(?:\.\d+)?)",
         text,
         re.IGNORECASE
     )
 
-    if match:
-        return match.group(1).replace(",", "")
+    if matches:
+        return matches[-1].replace(",", "")
 
-    # If marker is missing, do NOT guess.
+    # --------------------------------------------------------
+    # 2. Predicted answer
+    # --------------------------------------------------------
+
+    matches = re.findall(
+        r"Predicted answer:\s*\$?\s*(-?\d[\d,]*(?:\.\d+)?)",
+        text,
+        re.IGNORECASE
+    )
+
+    if matches:
+        return matches[-1].replace(",", "")
+
+    # --------------------------------------------------------
+    # 3. Final numerical answer
+    # --------------------------------------------------------
+
+    matches = re.findall(
+        r"Final numerical answer:\s*\$?\s*(-?\d[\d,]*(?:\.\d+)?)",
+        text,
+        re.IGNORECASE
+    )
+
+    if matches:
+        return matches[-1].replace(",", "")
+
+    # --------------------------------------------------------
+    # No reliable marker found
+    # --------------------------------------------------------
+
     return None
 
 
 # ============================================================
-# EXTRACT GSM8K GROUND TRUTH
+# NORMALIZE ANSWERS
 # ============================================================
 
-def extract_ground_truth(answer):
-    """
-    GSM8K answers normally end with:
-
-        #### 18
-
-    Extract only the number after ####.
-    """
+def normalize_answer(answer):
 
     if answer is None:
         return None
 
-    match = re.search(
-        r"####\s*(-?\d[\d,]*(?:\.\d+)?)",
-        answer
-    )
+    try:
 
-    if match:
-        return match.group(1).replace(",", "")
+        value = float(answer)
 
-    return None
+        if value.is_integer():
+            return str(int(value))
+
+        return str(value)
+
+    except Exception:
+
+        return str(answer).strip()
 
 
 # ============================================================
-# NORMALIZE NUMBERS
+# ANSWER COMPARISON
 # ============================================================
 
-def normalize_number(value):
-    """
-    Normalize numerical strings so that:
+def is_correct(predicted, ground_truth):
 
-        18
-        18.0
-        18.00
+    predicted = normalize_answer(predicted)
+    ground_truth = normalize_answer(ground_truth)
 
-    are treated as the same value.
-    """
-
-    if value is None:
-        return None
+    if predicted is None or ground_truth is None:
+        return False
 
     try:
-        number = float(value)
 
-        if number.is_integer():
-            return str(int(number))
+        return abs(
+            float(predicted) - float(ground_truth)
+        ) < 1e-6
 
-        return str(number)
+    except Exception:
 
-    except (ValueError, TypeError):
-        return str(value).strip()
-
-
-# ============================================================
-# GENERATE NORMAL AGENT RESPONSE
-# ============================================================
-
-def generate_normal_response(question, agent_number):
-
-    prompt = f"""
-{NORMAL_PROMPTS[agent_number]}
-
-Question:
-
-{question}
-"""
-
-    response = generate_response(prompt)
-
-    answer = normalize_number(
-        extract_final_answer(response)
-    )
-
-    return response, answer
+        return predicted == ground_truth
 
 
 # ============================================================
-# GENERATE ADVERSARIAL RESPONSE
+# LOAD PREVIOUS RESULTS
 # ============================================================
 
-def generate_adversarial_response(question):
+def load_previous_results():
 
-    prompt = ADVERSARIAL_PROMPT.format(
-        question=question
-    )
+    if not os.path.exists(JSON_FILE):
+        return []
 
-    response = generate_response(prompt)
+    try:
 
-    answer = normalize_number(
-        extract_final_answer(response)
-    )
+        with open(
+            JSON_FILE,
+            "r",
+            encoding="utf-8"
+        ) as f:
 
-    return response, answer
+            data = json.load(f)
 
-
-# ============================================================
-# CALCULATE EMBEDDING SIMILARITIES
-# ============================================================
-
-def calculate_similarities(
-    normal_responses,
-    adversarial_response
-):
-
-    adversarial_embedding = get_embedding(
-        adversarial_response
-    )
-
-    similarities = []
-
-    for response in normal_responses:
-
-        response_embedding = get_embedding(
-            response
+        print(
+            f"Found previous results: "
+            f"{len(data)} questions"
         )
 
-        similarity = cosine_similarity(
-            response_embedding,
-            adversarial_embedding
+        return data
+
+    except Exception:
+
+        print(
+            "WARNING: Could not read previous results."
         )
 
-        similarities.append(similarity)
-
-    return similarities
+        return []
 
 
 # ============================================================
-# MAIN EXPERIMENT
+# SAVE RESULTS
+# ============================================================
+
+def save_results(results):
+
+    # --------------------------------------------------------
+    # Save detailed JSON
+    # --------------------------------------------------------
+
+    with open(
+        JSON_FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            results,
+            f,
+            indent=2,
+            ensure_ascii=False
+        )
+
+    # --------------------------------------------------------
+    # Save summary CSV
+    # --------------------------------------------------------
+
+    fieldnames = [
+
+        "question_number",
+        "question",
+        "ground_truth",
+
+        "agent1_answer",
+        "agent2_answer",
+        "agent3_answer",
+
+        "similarity_agent1",
+        "similarity_agent2",
+        "similarity_agent3",
+
+        "selected_agent",
+        "mcf_answer",
+
+        "mcf_correct",
+
+        "agent1_correct",
+        "agent2_correct",
+        "agent3_correct",
+
+        "mcf_corrected_wrong",
+        "mcf_worsened_correct"
+    ]
+
+    with open(
+        CSV_FILE,
+        "w",
+        newline="",
+        encoding="utf-8"
+    ) as f:
+
+        writer = csv.DictWriter(
+            f,
+            fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+
+        for result in results:
+
+            writer.writerow({
+                key: result.get(key, "")
+                for key in fieldnames
+            })
+
+
+# ============================================================
+# MAIN
 # ============================================================
 
 def main():
+
+    # ========================================================
+    # LOAD GSM8K
+    # ========================================================
 
     print("Loading GSM8K dataset...")
 
@@ -276,52 +408,83 @@ def main():
         "main"
     )
 
-    test_data = dataset["test"]
+    questions = dataset["test"]
 
-    selected_correct = 0
-
-    # Statistics for diagnostics
-    extraction_failures = 0
-    adversarial_extraction_failures = 0
-
-    agent_correct = [0] * NUM_NORMAL_AGENTS
-
-    print("\n")
-
+    print()
     print("=" * 70)
     print("MCF EMBEDDING FILTER EXPERIMENT")
     print("=" * 70)
-
-    print(f"Questions: {NUM_QUESTIONS}")
+    print(f"Questions requested: {NUM_QUESTIONS}")
     print(f"Normal agents: {NUM_NORMAL_AGENTS}")
-
     print("=" * 70)
+    print()
 
+    # ========================================================
+    # LOAD PREVIOUS RESULTS
+    # ========================================================
+
+    results = load_previous_results()
+
+    completed_questions = {
+        r["question_number"]
+        for r in results
+    }
+
+    print(
+        f"Already completed: "
+        f"{len(completed_questions)}/{NUM_QUESTIONS}"
+    )
 
     # ========================================================
     # PROCESS QUESTIONS
     # ========================================================
 
-    for question_index in range(NUM_QUESTIONS):
+    for index in range(NUM_QUESTIONS):
 
-        question = test_data[question_index]["question"]
+        question_number = index + 1
 
-        ground_truth = normalize_number(
-            extract_ground_truth(
-                test_data[question_index]["answer"]
+        # ----------------------------------------------------
+        # Resume support
+        # ----------------------------------------------------
+
+        if question_number in completed_questions:
+
+            print(
+                f"Skipping Question "
+                f"{question_number} "
+                f"(already completed)"
             )
+
+            continue
+
+        item = questions[index]
+
+        question = item["question"]
+
+        # ----------------------------------------------------
+        # IMPORTANT:
+        # Use GSM8K-specific extraction
+        # ----------------------------------------------------
+
+        ground_truth = extract_gsm8k_answer(
+            item["answer"]
         )
 
-
-        print("\n")
+        print()
         print("#" * 70)
-        print(f"QUESTION {question_index + 1}")
+        print(
+            f"QUESTION "
+            f"{question_number}/{NUM_QUESTIONS}"
+        )
         print("#" * 70)
 
         print(question)
+        print()
 
-        print("\nGround truth:", ground_truth)
-
+        print(
+            f"Ground truth: "
+            f"{ground_truth}"
+        )
 
         # ====================================================
         # NORMAL AGENTS
@@ -330,105 +493,122 @@ def main():
         normal_responses = []
         normal_answers = []
 
+        for agent_index, prompt_template in enumerate(
+            NORMAL_PROMPTS
+        ):
 
-        for agent_number in range(NUM_NORMAL_AGENTS):
+            print()
+            print("-" * 70)
+            print(
+                f"NORMAL AGENT "
+                f"{agent_index + 1}"
+            )
+            print("-" * 70)
 
-            response, answer = generate_normal_response(
-                question,
-                agent_number
+            prompt = prompt_template.format(
+                question=question
+            )
+
+            response = generate_response(prompt)
+
+            answer = extract_model_answer(
+                response
             )
 
             normal_responses.append(response)
             normal_answers.append(answer)
 
-
-            print("\n" + "-" * 70)
-            print(
-                f"NORMAL AGENT {agent_number + 1}"
-            )
-            print("-" * 70)
-
             print(response)
+            print()
 
             print(
-                "\nPredicted answer:",
-                answer
+                f"Extracted answer: "
+                f"{answer}"
             )
-
-
-            # -----------------------------------------------
-            # Individual agent accuracy
-            # -----------------------------------------------
-
-            if answer is not None and answer == ground_truth:
-
-                agent_correct[agent_number] += 1
-
-
-            # -----------------------------------------------
-            # Extraction failure
-            # -----------------------------------------------
 
             if answer is None:
 
-                extraction_failures += 1
-
                 print(
-                    "WARNING: FINAL_ANSWER marker "
-                    "was not detected."
+                    "WARNING: Could not extract "
+                    "a reliable final answer."
                 )
-
 
         # ====================================================
         # ADVERSARIAL AGENT
         # ====================================================
 
-        (
-            adversarial_response,
-            adversarial_answer
-        ) = generate_adversarial_response(
-            question
-        )
-
-
-        print("\n" + "-" * 70)
+        print()
+        print("-" * 70)
         print("ADVERSARIAL AGENT")
         print("-" * 70)
 
-        print(adversarial_response)
-
-        print(
-            "\nPredicted answer:",
-            adversarial_answer
+        adversarial_prompt = (
+            ADVERSARIAL_PROMPT.format(
+                question=question
+            )
         )
 
+        adversarial_response = (
+            generate_response(
+                adversarial_prompt
+            )
+        )
+
+        adversarial_answer = (
+            extract_model_answer(
+                adversarial_response
+            )
+        )
+
+        print(adversarial_response)
+        print()
+
+        print(
+            f"Extracted answer: "
+            f"{adversarial_answer}"
+        )
 
         if adversarial_answer is None:
 
-            adversarial_extraction_failures += 1
-
             print(
-                "WARNING: Adversarial agent did not "
-                "produce a valid FINAL_ANSWER."
+                "WARNING: Could not extract "
+                "a reliable adversarial answer."
             )
 
-
         # ====================================================
-        # CALCULATE SIMILARITIES
+        # EMBEDDING CALCULATION
         # ====================================================
 
-        similarities = calculate_similarities(
-            normal_responses,
+        print()
+        print("Calculating embeddings...")
+
+        adversarial_embedding = get_embedding(
             adversarial_response
         )
 
+        similarities = []
 
-        print("\n" + "=" * 70)
-        print("SIMILARITY RESULTS")
-        print("=" * 70)
+        for response in normal_responses:
 
+            normal_embedding = get_embedding(
+                response
+            )
 
-        for i, similarity in enumerate(similarities):
+            similarity = cosine_similarity(
+                normal_embedding,
+                adversarial_embedding
+            )
+
+            similarities.append(
+                similarity
+            )
+
+        print()
+        print("Similarity results:")
+
+        for i, similarity in enumerate(
+            similarities
+        ):
 
             print(
                 f"Agent {i + 1} similarity "
@@ -436,40 +616,100 @@ def main():
                 f"{similarity:.4f}"
             )
 
+        # ====================================================
+        # MCF FILTERING
+        # ====================================================
 
-        # ====================================================
-        # MCF FILTERING DECISION
-        # ====================================================
-        #
         # Paper-inspired rule:
         #
-        # Select the normal response having the
-        # MINIMUM similarity to the adversarial response.
-        #
-        # ====================================================
+        # Select the normal response with the
+        # minimum similarity to the adversarial response.
 
-        selected_agent = similarities.index(
+        selected_index = similarities.index(
             min(similarities)
         )
 
-        selected_answer = normal_answers[
-            selected_agent
+        selected_agent = selected_index + 1
+
+        mcf_answer = normal_answers[
+            selected_index
         ]
 
+        # ====================================================
+        # INDIVIDUAL AGENT EVALUATION
+        # ====================================================
 
-        print("\n" + "=" * 70)
+        agent1_correct = is_correct(
+            normal_answers[0],
+            ground_truth
+        )
+
+        agent2_correct = is_correct(
+            normal_answers[1],
+            ground_truth
+        )
+
+        agent3_correct = is_correct(
+            normal_answers[2],
+            ground_truth
+        )
+
+        # ====================================================
+        # MCF EVALUATION
+        # ====================================================
+
+        mcf_correct = is_correct(
+            mcf_answer,
+            ground_truth
+        )
+
+        # ====================================================
+        # DID MCF CORRECT A WRONG CANDIDATE?
+        # ====================================================
+
+        selected_agent_correct = [
+            agent1_correct,
+            agent2_correct,
+            agent3_correct
+        ][selected_index]
+
+        mcf_corrected_wrong = (
+            mcf_correct
+            and not selected_agent_correct
+        )
+
+        # ====================================================
+        # DID MCF MAKE A CORRECT SET WORSE?
+        # ====================================================
+
+        any_agent_correct = (
+            agent1_correct
+            or agent2_correct
+            or agent3_correct
+        )
+
+        mcf_worsened_correct = (
+            not mcf_correct
+            and any_agent_correct
+        )
+
+        # ====================================================
+        # PRINT DECISION
+        # ====================================================
+
+        print()
+        print("=" * 70)
         print("FILTERING DECISION")
         print("=" * 70)
 
-
         print(
             f"Selected normal agent: "
-            f"Agent {selected_agent + 1}"
+            f"Agent {selected_agent}"
         )
 
         print(
             f"Selected answer: "
-            f"{selected_answer}"
+            f"{mcf_answer}"
         )
 
         print(
@@ -477,105 +717,260 @@ def main():
             f"{ground_truth}"
         )
 
-
-        # ====================================================
-        # EVALUATE MCF SELECTION
-        # ====================================================
-
-        if (
-            selected_answer is not None
-            and selected_answer == ground_truth
-        ):
-
-            selected_correct += 1
-
-            print(
-                "MCF selection result: CORRECT"
-            )
-
-        else:
-
-            print(
-                "MCF selection result: INCORRECT"
-            )
-
-
-    # ========================================================
-    # FINAL RESULTS
-    # ========================================================
-
-    accuracy = (
-        selected_correct /
-        NUM_QUESTIONS
-    ) * 100
-
-
-    print("\n")
-
-    print("=" * 70)
-    print("FINAL MCF EMBEDDING FILTER RESULTS")
-    print("=" * 70)
-
-
-    print(
-        f"Correct selections: "
-        f"{selected_correct}/{NUM_QUESTIONS}"
-    )
-
-    print(
-        f"Selection accuracy: "
-        f"{accuracy:.2f}%"
-    )
-
-
-    # ========================================================
-    # INDIVIDUAL AGENT RESULTS
-    # ========================================================
-
-    print("\n")
-    print("=" * 70)
-    print("INDIVIDUAL NORMAL AGENT RESULTS")
-    print("=" * 70)
-
-
-    for i in range(NUM_NORMAL_AGENTS):
-
-        agent_accuracy = (
-            agent_correct[i] /
-            NUM_QUESTIONS
-        ) * 100
-
         print(
-            f"Agent {i + 1}: "
-            f"{agent_correct[i]}/{NUM_QUESTIONS} "
-            f"({agent_accuracy:.2f}%)"
+            "MCF selection result: "
+            + (
+                "CORRECT"
+                if mcf_correct
+                else "INCORRECT"
+            )
         )
 
+        # ====================================================
+        # SAVE RESULT
+        # ====================================================
+
+        result = {
+
+            "question_number":
+                question_number,
+
+            "question":
+                question,
+
+            "ground_truth":
+                ground_truth,
+
+            # -----------------------------------------------
+            # Extracted answers
+            # -----------------------------------------------
+
+            "agent1_answer":
+                normal_answers[0],
+
+            "agent2_answer":
+                normal_answers[1],
+
+            "agent3_answer":
+                normal_answers[2],
+
+            # -----------------------------------------------
+            # Similarities
+            # -----------------------------------------------
+
+            "similarity_agent1":
+                round(similarities[0], 4),
+
+            "similarity_agent2":
+                round(similarities[1], 4),
+
+            "similarity_agent3":
+                round(similarities[2], 4),
+
+            # -----------------------------------------------
+            # MCF decision
+            # -----------------------------------------------
+
+            "selected_agent":
+                selected_agent,
+
+            "mcf_answer":
+                mcf_answer,
+
+            # -----------------------------------------------
+            # Accuracy
+            # -----------------------------------------------
+
+            "mcf_correct":
+                mcf_correct,
+
+            "agent1_correct":
+                agent1_correct,
+
+            "agent2_correct":
+                agent2_correct,
+
+            "agent3_correct":
+                agent3_correct,
+
+            # -----------------------------------------------
+            # MCF behavior
+            # -----------------------------------------------
+
+            "mcf_corrected_wrong":
+                mcf_corrected_wrong,
+
+            "mcf_worsened_correct":
+                mcf_worsened_correct,
+
+            # -----------------------------------------------
+            # Full responses
+            # -----------------------------------------------
+
+            "agent1_response":
+                normal_responses[0],
+
+            "agent2_response":
+                normal_responses[1],
+
+            "agent3_response":
+                normal_responses[2],
+
+            "adversarial_response":
+                adversarial_response,
+
+            "adversarial_answer":
+                adversarial_answer
+        }
+
+        results.append(result)
+
+        # ----------------------------------------------------
+        # SAVE IMMEDIATELY
+        # ----------------------------------------------------
+
+        save_results(results)
+
+        print()
+        print(
+            f"Progress saved: "
+            f"{len(results)}/{NUM_QUESTIONS}"
+        )
 
     # ========================================================
-    # EXTRACTION DIAGNOSTICS
+    # FINAL SUMMARY
     # ========================================================
 
-    print("\n")
+    print()
     print("=" * 70)
-    print("EXTRACTION DIAGNOSTICS")
+    print("FINAL MCF RESULTS")
     print("=" * 70)
 
+    total = len(results)
+
+    if total == 0:
+
+        print("No results available.")
+        return
+
+    # --------------------------------------------------------
+    # Individual agent accuracy
+    # --------------------------------------------------------
+
+    agent1_accuracy = (
+        sum(
+            r["agent1_correct"]
+            for r in results
+        )
+        / total
+        * 100
+    )
+
+    agent2_accuracy = (
+        sum(
+            r["agent2_correct"]
+            for r in results
+        )
+        / total
+        * 100
+    )
+
+    agent3_accuracy = (
+        sum(
+            r["agent3_correct"]
+            for r in results
+        )
+        / total
+        * 100
+    )
+
+    # --------------------------------------------------------
+    # MCF accuracy
+    # --------------------------------------------------------
+
+    mcf_accuracy = (
+        sum(
+            r["mcf_correct"]
+            for r in results
+        )
+        / total
+        * 100
+    )
+
+    # --------------------------------------------------------
+    # MCF corrections
+    # --------------------------------------------------------
+
+    corrections = sum(
+        r["mcf_corrected_wrong"]
+        for r in results
+    )
+
+    worsened = sum(
+        r["mcf_worsened_correct"]
+        for r in results
+    )
+
+    # --------------------------------------------------------
+    # Print summary
+    # --------------------------------------------------------
+
+    print()
+    print(
+        f"Questions completed: "
+        f"{total}"
+    )
+
+    print()
 
     print(
-        "Normal-agent extraction failures:",
-        extraction_failures
+        f"Agent 1 accuracy: "
+        f"{agent1_accuracy:.2f}%"
     )
 
     print(
-        "Adversarial extraction failures:",
-        adversarial_extraction_failures
+        f"Agent 2 accuracy: "
+        f"{agent2_accuracy:.2f}%"
     )
 
+    print(
+        f"Agent 3 accuracy: "
+        f"{agent3_accuracy:.2f}%"
+    )
 
-    print("\n")
+    print()
+
+    print(
+        f"MCF accuracy: "
+        f"{mcf_accuracy:.2f}%"
+    )
+
+    print()
+
+    print(
+        f"MCF corrected a wrong selected "
+        f"candidate: {corrections}"
+    )
+
+    print(
+        f"MCF selected a wrong candidate "
+        f"when a correct candidate existed: "
+        f"{worsened}"
+    )
+
+    print()
     print("=" * 70)
-    print("EXPERIMENT COMPLETED")
+    print("FILES SAVED")
+    print("=" * 70)
+
+    print(
+        f"CSV : {CSV_FILE}"
+    )
+
+    print(
+        f"JSON: {JSON_FILE}"
+    )
+
     print("=" * 70)
 
 
