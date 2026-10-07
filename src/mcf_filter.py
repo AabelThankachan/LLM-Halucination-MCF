@@ -10,7 +10,7 @@ from embedding_client import get_embedding, cosine_similarity
 # EXPERIMENT SETTINGS
 # ============================================================
 
-NUM_QUESTIONS = 50
+NUM_QUESTIONS = 5
 NUM_NORMAL_AGENTS = 3
 
 
