@@ -1,5 +1,7 @@
 .venv/
+armvenv/
+.amrvenv/
 __pycache__/
 *.pyc
 .env
-data/
+data/**
