@@ -31,7 +31,7 @@ from datasets import load_dataset
 
 
 # -------------------- CONFIGURATION --------------------
-NUM_QUESTIONS = 5      
+NUM_QUESTIONS = 5
 NUM_NORMAL_AGENTS = 3
 LLM_MODEL = "llama3.2:3b"
 EMBED_MODEL = "nomic-embed-text"
@@ -67,18 +67,24 @@ Problem:
 {question}""",
 ]
 
-ADVERSARIAL_PROMPT = """You are a challenge agent in a reasoning-evaluation system.
-Independently examine the problem and produce a plausible alternative solution
-that may contain a subtle reasoning mistake (for example, overlooking a
-condition or using an incorrect operation). Do not simply output random text.
-Do not reveal a corrected solution and do not claim your answer is guaranteed
-to be correct. End with exactly:
+ADVERSARIAL_PROMPT = """You are an adversarial challenge agent for a
+mathematical reasoning evaluation.
+
+Your task is to produce a plausible but flawed solution to the problem.
+Identify a quantity, operation, or condition that could easily be
+misinterpreted, then use that mistake consistently in your calculation.
+
+Requirements:
+- Show concise reasoning.
+- Make one plausible mathematical or interpretation error.
+- Do not simply repeat the correct solution.
+- Do not reveal or append the corrected answer.
+- End with exactly:
 FINAL_ANSWER: <number>
 
 Problem:
 {question}
-
-Give concise reasoning and the proposed numerical answer."""
+"""
 
 
 # -------------------- DATA / ANSWER HELPERS --------------------
