@@ -31,7 +31,7 @@ from datasets import load_dataset
 
 
 # -------------------- CONFIGURATION --------------------
-NUM_QUESTIONS = 5
+NUM_QUESTIONS = 50
 NUM_NORMAL_AGENTS = 3
 LLM_MODEL = "llama3.2:3b"
 EMBED_MODEL = "nomic-embed-text"
