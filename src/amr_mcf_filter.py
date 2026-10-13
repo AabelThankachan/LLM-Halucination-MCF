@@ -27,7 +27,7 @@ import amrlib
 import numpy as np
 import ollama
 import smatch
-from datasets import load_dataset
+#from datasets import load_dataset
 
 
 # -------------------- CONFIGURATION --------------------
@@ -268,7 +268,17 @@ def main():
             )
 
     print(f"Loading GSM8K {DATASET_SPLIT} split...")
-    dataset = load_dataset(DATASET_NAME, DATASET_CONFIG, split=DATASET_SPLIT)
+
+    #dataset = load_dataset(DATASET_NAME, DATASET_CONFIG, split=DATASET_SPLIT)
+
+    DATASET_PATH = "data/gsm8k_test.jsonl"
+
+    with open(DATASET_PATH, "r", encoding="utf-8") as f:
+        dataset = [json.loads(line) for line in f if line.strip()]
+
+    #print(f"Loaded {len(dataset)} GSM8K test questions")
+
+
     target_count = min(NUM_QUESTIONS, len(dataset))
     amr = AMRClient()
 
