@@ -1,0 +1,19 @@
+CONSISTENCY-CHECKED LOCAL OLLAMA VERIFIER (V2)
+Input: results\amr_mcf_raw_responses.json
+Model: llama3.2:3b
+Questions: 50
+Calls with no recorded error: 44
+Repair pass used: 14
+
+Accuracy (all evaluated rows; errors/unresolved answers count as incorrect):
+Existing MCF: 38/50 (76.0%)
+Majority voting: 39/50 (78.0%)
+Verifier independent answer: 22/50 (44.0%)
+Verifier candidate selection: 22/50 (44.0%)
+
+New rows processed this run: 50
+CSV: results\analysis\answer_verifier_v2_results.csv
+Report: results\analysis\answer_verifier_v2_report.txt
+
+Gold answers are used only for scoring, never sent to Ollama.
+Exploratory comparison only; use a separate held-out dataset for final claims.

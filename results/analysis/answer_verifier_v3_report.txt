@@ -1,0 +1,21 @@
+STRUCTURED-OUTPUT LOCAL OLLAMA VERIFIER (V3)
+Input: results\amr_mcf_raw_responses.json
+Model: llama3.2:3b
+Questions: 50
+Rows with no recorded error: 47
+Timeouts/errors: 3
+Repair pass used: 47
+Calculation consistency confirmed: 0
+
+Accuracy (all evaluated rows; errors/unresolved answers count as incorrect):
+Existing MCF: 38/50 (76.0%)
+Majority voting: 39/50 (78.0%)
+Verifier independent answer: 0/50 (0.0%)
+Verifier candidate selection: 0/50 (0.0%)
+
+New rows processed this run: 50
+CSV: results\analysis\answer_verifier_v3_results.csv
+Report: results\analysis\answer_verifier_v3_report.txt
+
+Gold answers are used only for scoring, never sent to Ollama.
+Exploratory comparison only; use a separate held-out dataset for final claims.

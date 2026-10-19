@@ -1,0 +1,17 @@
+ANSWER-PARSING DIAGNOSTIC VERIFIER (V4)
+Input: results\amr_mcf_raw_responses.json
+Model: llama3.2:3b
+Questions: 50
+Errors/unparsed answers: 9
+Calculation marker consistency (diagnostic only): 2/50
+
+Accuracy (all errors/unparsed answers count as incorrect):
+Existing MCF: 38/50 (76.0%)
+Majority voting: 39/50 (78.0%)
+Verifier independent answer: 19/50 (38.0%)
+Verifier candidate selection: 19/50 (38.0%)
+
+CSV: results\analysis\answer_verifier_v4_results.csv
+Report: results\analysis\answer_verifier_v4_report.txt
+Gold answers are used only for scoring and are not sent to Ollama.
+Consistency is reported diagnostically and is not used to discard a parseable answer.
