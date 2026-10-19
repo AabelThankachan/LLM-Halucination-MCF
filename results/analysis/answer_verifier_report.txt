@@ -1,0 +1,18 @@
+LOCAL OLLAMA ANSWER-VERIFIER EXPERIMENT
+Input: results\amr_mcf_raw_responses.json
+Model: llama3.2:3b
+Questions in input/evaluation: 50
+Verifier calls without recorded error: 47
+
+Accuracy (denominator includes all evaluated questions; failures count as incorrect):
+Existing MCF: 38/50 (76.0%)
+Majority voting: 39/50 (78.0%)
+Verifier independent solution: 29/50 (58.0%)
+Verifier candidate selection: 30/50 (60.0%)
+
+Newly processed in this run: 50
+CSV: results\analysis\answer_verifier_results.csv
+Report: results\analysis\answer_verifier_report.txt
+
+Method note: gold answers were used only for scoring and were not sent to Ollama.
+Use these 50 questions as an exploratory comparison, not a held-out benchmark if they were used during development.

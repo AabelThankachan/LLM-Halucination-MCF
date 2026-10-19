@@ -1,0 +1,74 @@
+{
+  "method_summaries": {
+    "embedding_amr_mcf": {
+      "file": "results\\amr_mcf_results.csv",
+      "rows": 50,
+      "unique_question_ids": 50,
+      "mcf_accuracy_percent": 76.0
+    },
+    "embedding_mcf": {
+      "file": "results\\mcf_results.csv",
+      "rows": 50,
+      "unique_question_ids": 50,
+      "mcf_accuracy_percent": 68.0
+    },
+    "method_comparison": {
+      "file": "results\\method_comparison.csv",
+      "rows": 50,
+      "unique_question_ids": 50,
+      "mcf_accuracy_percent": 68.0
+    }
+  },
+  "paired_overlap_summaries": {
+    "embedding_amr_mcf": {
+      "overlap_questions_with_prediction": 50,
+      "mcf_accuracy_percent": 76.0,
+      "majority_vote_accuracy_percent": 78.0
+    },
+    "embedding_mcf": {
+      "overlap_questions_with_prediction": 50,
+      "mcf_accuracy_percent": 68.0,
+      "majority_vote_accuracy_percent": 78.0
+    },
+    "method_comparison": {
+      "overlap_questions_with_prediction": 50,
+      "mcf_accuracy_percent": 68.0,
+      "majority_vote_accuracy_percent": 78.0
+    }
+  },
+  "combined_mcf_candidate_analysis": {
+    "questions": 50,
+    "any_agent_correct_count": 44,
+    "oracle_accuracy_percent": 88.0,
+    "mcf_accuracy_percent": 76.0,
+    "mcf_missed_correct_candidate_count": 6,
+    "mcf_missed_correct_candidate_ids": [
+      3,
+      16,
+      19,
+      28,
+      39,
+      44
+    ]
+  },
+  "same_saved_response_ablation": {
+    "amr_only_min": {
+      "accuracy_percent": 76.0,
+      "missed_correct_candidate_count": 6
+    },
+    "combined_min": {
+      "accuracy_percent": 76.0,
+      "missed_correct_candidate_count": 6
+    },
+    "embedding_only_min": {
+      "accuracy_percent": 70.0,
+      "missed_correct_candidate_count": 9
+    }
+  },
+  "notes": [
+    "The ablation is valid only if all score columns were computed from the same saved agent responses.",
+    "If CSV files come from separate runs, compare them as same-question-ID evaluations, not as a controlled ablation.",
+    "Majority-vote ties or rows with no parseable answers are left unresolved and counted incorrect.",
+    "Accuracy is exact numeric-answer accuracy after basic number normalization."
+  ]
+}

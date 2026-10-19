@@ -1,0 +1,31 @@
+CONSENSUS-FIRST HYBRID: ERROR ANALYSIS
+============================================
+Questions: 50
+Existing MCF: 38/50 (76.0%)
+Majority voting: 39/50 (78.0%)
+Hybrid: 39/50 (78.0%)
+Oracle ceiling: 44/50 (88.0%)
+Hybrid change vs MCF: +1 correct answers
+
+CASE COUNTS
+--------------------------------------------
+Both MCF and hybrid correct: 37
+No normal agent had the correct answer: 6
+Recoverable: at least one normal agent was correct: 4
+Hybrid fixed an MCF error: 2
+Hybrid changed a correct MCF answer to wrong: 1
+
+QUESTION IDS BY CATEGORY (question_id is zero-based in this file)
+--------------------------------------------
+Hybrid fixed an MCF error: 3, 19
+Hybrid changed a correct MCF answer to wrong: 12
+Recoverable: at least one normal agent was correct: 16, 28, 39, 44
+No normal agent had the correct answer: 5, 7, 8, 13, 20, 21
+
+INTERPRETATION
+--------------------------------------------
+The hybrid is not better than majority voting in this run if their accuracy is equal.
+Focus next on recoverable errors: cases where at least one normal agent was correct,
+but the chosen MCF/hybrid answer was wrong. A stronger selector needs additional evidence,
+such as agent confidence, answer-verification results, or saved reasoning traces.
+Do not tune and report performance on the same 50 questions as if it were a held-out test.

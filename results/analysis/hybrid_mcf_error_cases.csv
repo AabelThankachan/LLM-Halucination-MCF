@@ -1,0 +1,51 @@
+question_id,gold_answer_normalized,agent1_answer_normalized,agent2_answer_normalized,agent3_answer_normalized,mcf_answer_normalized,consensus_answer,hybrid_answer,hybrid_selection_reason,mcf_correct,majority_vote_correct,hybrid_correct,any_normal_agent_correct,error_category
+0,18,18.0,18.0,18.0,18.0,18.0,18.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+1,3,3.0,3.0,3.0,3.0,3.0,3.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+2,70000,150000.0,70000.0,70000.0,70000.0,70000.0,70000.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+3,540,540.0,540.0,180.0,180.0,540.0,540.0,normal-agent consensus (2/3),False,True,True,True,Hybrid fixed an MCF error
+4,20,20.0,20.0,13.33,20.0,20.0,20.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+5,64,80.0,50.0,78.0,80.0,,80.0,fallback to existing MCF answer,False,False,False,False,No normal agent had the correct answer
+6,260,260.0,260.0,260.0,260.0,260.0,260.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+7,160,2.0,120.0,2.0,120.0,2.0,2.0,normal-agent consensus (2/3),False,False,False,False,No normal agent had the correct answer
+8,45,,355.0,135.0,,,,fallback to existing MCF answer,False,False,False,False,No normal agent had the correct answer
+9,460,460.0,460.0,460.0,460.0,460.0,460.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+10,366,366.0,366.0,366.0,366.0,366.0,366.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+11,694,694.0,694.0,694.0,694.0,694.0,694.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+12,13,12.0,13.0,12.0,13.0,12.0,12.0,normal-agent consensus (2/3),True,False,False,True,Hybrid changed a correct MCF answer to wrong
+13,18,10.0,12.0,8.0,10.0,,10.0,fallback to existing MCF answer,False,False,False,False,No normal agent had the correct answer
+14,60,60.0,60.0,60.0,60.0,60.0,60.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+15,125,125.0,125.0,125.0,125.0,125.0,125.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+16,230,230.0,460.0,460.0,460.0,460.0,460.0,normal-agent consensus (2/3),False,False,False,True,Recoverable: at least one normal agent was correct
+17,57500,57500.0,57500.0,57500.0,57500.0,57500.0,57500.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+18,7,7.0,7.0,7.0,7.0,7.0,7.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+19,6,4.0,6.0,6.0,4.0,6.0,6.0,normal-agent consensus (2/3),False,True,True,True,Hybrid fixed an MCF error
+20,15,11.0,,661.0,,,,fallback to existing MCF answer,False,False,False,False,No normal agent had the correct answer
+21,14,29.0,15.0,17.0,17.0,,17.0,fallback to existing MCF answer,False,False,False,False,No normal agent had the correct answer
+22,7,7.0,7.0,7.0,7.0,7.0,7.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+23,8,8.0,8.0,8.0,8.0,8.0,8.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+24,26,26.0,26.0,26.0,26.0,26.0,26.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+25,2,2.0,2.0,2.0,2.0,2.0,2.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+26,243,243.0,243.0,243.0,243.0,243.0,243.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+27,16,16.0,16.0,16.0,16.0,16.0,16.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+28,25,65.0,25.0,12.5,12.5,,12.5,fallback to existing MCF answer,False,False,False,True,Recoverable: at least one normal agent was correct
+29,104,104.0,104.0,104.0,104.0,104.0,104.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+30,109,109.0,109.0,109.0,109.0,109.0,109.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+31,80,80.0,80.0,80.0,80.0,80.0,80.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+32,35,35.0,35.0,35.0,35.0,35.0,35.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+33,70,70.0,70.0,70.0,70.0,70.0,70.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+34,23,23.0,23.0,23.0,23.0,23.0,23.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+35,9,9.0,9.0,9.0,9.0,9.0,9.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+36,75,75.0,75.0,75.0,75.0,75.0,75.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+37,2,2.0,2.0,,2.0,2.0,2.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+38,10,40.0,10.0,10.0,10.0,10.0,10.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+39,18,36.0,18.0,36.0,36.0,36.0,36.0,normal-agent consensus (2/3),False,False,False,True,Recoverable: at least one normal agent was correct
+40,8,8.0,8.0,8.0,8.0,8.0,8.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+41,200,200.0,200.0,200.0,200.0,200.0,200.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+42,26,26.0,26.0,26.0,26.0,26.0,26.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+43,48,1.667,48.0,48.0,48.0,48.0,48.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+44,20,-160.0,20.0,10.0,10.0,,10.0,fallback to existing MCF answer,False,False,False,True,Recoverable: at least one normal agent was correct
+45,104,104.0,104.0,104.0,104.0,104.0,104.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+46,163,23.0,163.0,163.0,163.0,163.0,163.0,normal-agent consensus (2/3),True,True,True,True,Both MCF and hybrid correct
+47,800,800.0,800.0,800.0,800.0,800.0,800.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+48,8,8.0,8.0,8.0,8.0,8.0,8.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct
+49,30,30.0,30.0,30.0,30.0,30.0,30.0,normal-agent consensus (3/3),True,True,True,True,Both MCF and hybrid correct

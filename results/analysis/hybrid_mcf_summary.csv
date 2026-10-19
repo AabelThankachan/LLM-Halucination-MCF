@@ -1,0 +1,5 @@
+method,correct,total,accuracy_percent
+Existing MCF,38,50,76.0
+Majority voting (consensus only),39,50,78.0
+Consensus-first hybrid,39,50,78.0
+Oracle ceiling (any normal agent correct),44,50,88.0
