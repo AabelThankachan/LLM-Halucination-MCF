@@ -23,6 +23,8 @@ import re
 import time
 from pathlib import Path
 
+from improved_mcf_selector import apply_improved_selection
+
 import amrlib
 import numpy as np
 import ollama
@@ -43,8 +45,8 @@ DATASET_SPLIT = "test"
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = ROOT / "results"
-CSV_PATH = RESULTS_DIR / "amr_mcf_results.csv"
-JSON_PATH = RESULTS_DIR / "amr_mcf_raw_responses.json"
+CSV_PATH = RESULTS_DIR / "amr_mcf_improved_results.csv"
+JSON_PATH = RESULTS_DIR / "amr_mcf_improved_raw_responses.json"
 
 NORMAL_PROMPTS = [
     """Solve the GSM8K math word problem carefully. Show concise step-by-step
@@ -245,6 +247,9 @@ def save_all(records):
         "amr_similarity_agent2", "amr_similarity_agent3",
         "combined_score_agent1", "combined_score_agent2",
         "combined_score_agent3", "mcf_selection_reason",
+        "original_mcf_answer", "original_mcf_correct", "valid_agent_count",
+        "consensus_count", "agent1_valid", "agent2_valid", "agent3_valid",
+        "agent1_math_status", "agent2_math_status", "agent3_math_status",
     ]
     with CSV_PATH.open("w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
@@ -346,10 +351,10 @@ def main():
                 f"combined={combined:.4f}"
             )
 
-        # Preserve the current experiment's minimum-similarity selection rule.
-        selected_idx = int(np.argmin(combined_scores))
-        selected_answer = normal_answers[selected_idx]
-        selected_correct = answers_equal(selected_answer, gold)
+        # Keep the original minimum-similarity choice for comparison, then
+        # apply valid-answer filtering, consensus, and arithmetic verification.
+        original_selected_idx = int(np.argmin(combined_scores))
+        original_selected_answer = normal_answers[original_selected_idx]
 
         record = {
             "question_id": question_id,
@@ -362,9 +367,9 @@ def main():
             "embedding_similarities": emb_scores,
             "amr_similarities": amr_scores,
             "combined_scores": combined_scores,
-            "selected_agent": selected_idx + 1,
-            "mcf_answer": selected_answer,
-            "mcf_correct": selected_correct,
+            "selected_agent": original_selected_idx + 1,
+            "mcf_answer": original_selected_answer,
+            "mcf_correct": answers_equal(original_selected_answer, gold),
             "agent1_answer": normal_answers[0],
             "agent2_answer": normal_answers[1],
             "agent3_answer": normal_answers[2],
@@ -383,14 +388,18 @@ def main():
             "combined_score_agent3": combined_scores[2],
             "mcf_selection_reason": "minimum combined similarity to challenge agent",
         }
+        record = apply_improved_selection(record)
+        selected_idx = (record["selected_agent"] - 1) if record["selected_agent"] else None
+        selected_answer = record["mcf_answer"]
+        selected_correct = record["mcf_correct"]
 
         records[question_id] = record
         save_all(records)
         completed_this_run += 1
         print(
-            f"  Selected Agent {selected_idx + 1}; "
-            f"prediction={selected_answer}; gold={gold}; "
-            f"correct={selected_correct}"
+            f"  Improved selection: Agent {selected_idx + 1 if selected_idx is not None else 'None'}; "
+            f"prediction={selected_answer}; gold={gold}; correct={selected_correct}; "
+            f"reason={record['mcf_selection_reason']}"
         )
         print(f"  Saved progress to {CSV_PATH}")
         time.sleep(0.1)
@@ -409,7 +418,8 @@ def main():
             print(f"Agent {agent_idx + 1} accuracy: {correct / len(evaluated) * 100:.2f}%")
 
         mcf_correct = sum(bool(r["mcf_correct"]) for r in evaluated)
-        print(f"Embedding + AMR MCF accuracy: {mcf_correct / len(evaluated) * 100:.2f}%")
+        print(f"Improved AMR + embedding MCF accuracy: {mcf_correct / len(evaluated) * 100:.2f}%")
+        print("Selection now uses valid-answer filtering, consensus and math-trace verification.")
         print(f"New questions completed this run: {completed_this_run}")
         print(f"CSV: {CSV_PATH}")
         print(f"Raw responses: {JSON_PATH}")
