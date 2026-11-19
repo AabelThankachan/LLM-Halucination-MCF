@@ -35,7 +35,6 @@ class ExperienceRepository:
         self.load()
 
     def _embed(self, text: str) -> list[float]:
-        """Create a vector using Ollama's local embedding API."""
         payload = json.dumps({
             "model": self.embedding_model,
             "input": text,
@@ -91,7 +90,6 @@ class ExperienceRepository:
         validation_status: str = "unverified",
         source_split: str = "unspecified",
     ) -> dict[str, Any]:
-        """Embed and store a task and its solution."""
         task_description = task_description.strip()
         if not task_description:
             raise ValueError("Task description cannot be empty.")
@@ -112,7 +110,6 @@ class ExperienceRepository:
         return experience
 
     def save(self) -> None:
-        """Persist the repository to JSON."""
         self.repository_path.parent.mkdir(parents=True, exist_ok=True)
         temporary_path = self.repository_path.with_suffix(".tmp")
 
@@ -122,7 +119,6 @@ class ExperienceRepository:
         temporary_path.replace(self.repository_path)
 
     def load(self) -> None:
-        """Load existing experiences, if the file exists."""
         if not self.repository_path.exists():
             self.experiences = []
             return
@@ -148,7 +144,6 @@ class ExperienceRepository:
         minimum_similarity: float = 0.0,
         require_validated: bool = False,
     ) -> list[dict[str, Any]]:
-        """Return the most similar stored tasks."""
         if top_k < 1:
             return []
 
@@ -186,11 +181,7 @@ class ExperienceRepository:
         self,
         task_description: str,
     ) -> dict[str, Any]:
-        """Compare a task's average similarity with repository density.
 
-        A strongly negative Z-score means the task is less similar to
-        the repository than typical stored tasks.
-        """
         if len(self.experiences) < 3:
             return {
                 "z_score": None,
@@ -207,7 +198,6 @@ class ExperienceRepository:
         ]
         query_mean = sum(query_similarities) / len(query_similarities)
 
-        # Average similarity of each stored task to the other stored tasks.
         stored_means = []
         for i, vector in enumerate(stored_embeddings):
             similarities = [
@@ -250,7 +240,6 @@ class ExperienceRepository:
     def format_experiences(
         experiences: list[dict[str, Any]],
     ) -> str:
-        """Format retrieved examples for a future agent prompt."""
         if not experiences:
             return "No relevant previous experiences were retrieved."
 

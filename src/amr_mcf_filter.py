@@ -82,7 +82,6 @@ Problem:
 
 #DATA / ANSWER HELPERS
 def extract_gsm8k_answer(answer_text):
-    """GSM8K gold answers normally end with #### followed by the answer."""
     matches = re.findall(r"####\s*(-?\d[\d,]*(?:\.\d+)?)", answer_text or "")
     if not matches:
         return None
@@ -104,7 +103,6 @@ def normalize_number(value):
 
 
 def extract_model_answer(response_text):
-    """Only accept explicit final-answer markers; avoid grabbing arbitrary numbers."""
     if not response_text:
         return None
 
@@ -125,7 +123,6 @@ def answers_equal(predicted, gold):
     return normalize_number(predicted) == normalize_number(gold)
 
 
-#OLLAMA HELPERS
 def generate_response(prompt):
     result = ollama.chat(
         model=LLM_MODEL,
@@ -147,11 +144,9 @@ def cosine_similarity(text_a, text_b):
     if denominator == 0:
         return 0.0
     score = float(np.dot(vector_a, vector_b) / denominator)
-    # Cosine similarity can theoretically be negative; keep its actual value.
     return score
 
 
-#AMR / SMATCH
 class AMRClient:
     def __init__(self):
         print("Loading BART-large AMR parser...")
@@ -194,7 +189,6 @@ class AMRClient:
 
 
 def trim_for_amr(text, max_chars=3500):
-    """Keep parsing cost bounded; retain the beginning and final-answer line."""
     text = (text or "").strip()
     if len(text) <= max_chars:
         return text
@@ -207,7 +201,6 @@ def trim_for_amr(text, max_chars=3500):
     return head + "\n" + final_line
 
 
-#PERSISTENCE 
 def load_existing():
     records = {}
     if JSON_PATH.exists():
@@ -265,14 +258,11 @@ def main():
 
     print(f"Loading GSM8K {DATASET_SPLIT} split...")
 
-    #dataset = load_dataset(DATASET_NAME, DATASET_CONFIG, split=DATASET_SPLIT)
 
     DATASET_PATH = "data/gsm8k_test.jsonl"
 
     with open(DATASET_PATH, "r", encoding="utf-8") as f:
         dataset = [json.loads(line) for line in f if line.strip()]
-
-    #print(f"Loaded {len(dataset)} GSM8K test questions")
 
 
     target_count = min(NUM_QUESTIONS, len(dataset))
@@ -322,8 +312,6 @@ def main():
             normal_graph = amr.parse(trim_for_amr(normal_text))
             amr_score = amr.similarity_from_graphs(normal_graph, adversarial_graph)
 
-            # Normalize cosine from [-1, 1] to [0, 1] before combining
-            # it with Smatch F1, which is already in [0, 1].
             embedding_normalized = (emb_score + 1.0) / 2.0
             combined = (
                 EMBEDDING_WEIGHT * embedding_normalized
@@ -342,8 +330,6 @@ def main():
                 f"combined={combined:.4f}"
             )
 
-        # Keep the original minimum-similarity choice for comparison, then
-        # apply valid-answer filtering, consensus, and arithmetic verification.
         original_selected_idx = int(np.argmin(combined_scores))
         original_selected_answer = normal_answers[original_selected_idx]
 
@@ -395,7 +381,6 @@ def main():
         print(f"  Saved progress to {CSV_PATH}")
         time.sleep(0.1)
 
-    # Evaluate only the requested prefix of GSM8K test questions.
     evaluated = [
         records[str(i)] for i in range(target_count)
         if str(i) in records

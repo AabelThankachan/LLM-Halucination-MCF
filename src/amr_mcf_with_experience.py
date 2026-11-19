@@ -66,7 +66,6 @@ CSV_COLUMNS = [
 
 
 def load_records():
-    """Load this experiment's own results to support resuming."""
     if not JSON_PATH.exists():
         return {}
 
@@ -81,7 +80,6 @@ def load_records():
 
 
 def save_records(records):
-    """Save JSON and CSV after each completed question."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     ordered = sorted(
         records.values(),
@@ -121,7 +119,6 @@ def check_ollama_models():
 
 
 def build_normal_prompt(agent_index, question, experience_text):
-    """Add retrieved training examples to a normal agent's prompt."""
     original_prompt = base.NORMAL_PROMPTS[agent_index].format(
         question=question
     )
@@ -145,7 +142,6 @@ def process_question(index, row, repository, amr):
         print(f"Skipping question {question_id}: no gold answer found.")
         return None
 
-    # Detect potential outliers before retrieval.
     outlier_info = repository.outlier_score(question)
     is_outlier = bool(outlier_info.get("is_outlier", False))
 
@@ -171,7 +167,6 @@ def process_question(index, row, repository, amr):
         f"outlier={is_outlier}"
     )
 
-    # Three normal agents receive the same retrieved examples.
     normal_texts = []
     normal_answers = []
 
@@ -226,8 +221,6 @@ def process_question(index, row, repository, amr):
         amr_scores.append(float(amr_score))
         combined_scores.append(float(combined_score))
 
-    # Retain the original choice for comparison; the improved selector below
-    # chooses among valid answers using consensus and arithmetic verification.
     original_selected_index = int(np.argmin(combined_scores))
     original_selected_answer = normal_answers[original_selected_index]
 

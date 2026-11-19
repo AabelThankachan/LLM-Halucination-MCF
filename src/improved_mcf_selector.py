@@ -16,7 +16,6 @@ NUMBER_RE = re.compile(r"^\s*\$?\s*(-?\d[\d,]*(?:\.\d+)?)\s*(?:dollars?|units?)?
 
 
 def normalize_number(value: Any) -> Optional[str]:
-    """Return a canonical decimal string, or None for an invalid/missing answer."""
     if value is None:
         return None
     s = str(value).strip()
@@ -74,8 +73,6 @@ def verify_math_trace(response: Any, answer: Optional[str]) -> dict[str, Any]:
     text = str(response or "")
     equations = EQUATION_RE.findall(text)
     if not equations:
-        # Also accept standalone plain-text equations such as "2 + 1 = 3".
-        # Only retain equations whose left and right sides are both safe arithmetic.
         for line in text.splitlines():
             for match in PLAIN_EQ_RE.finditer(line):
                 lhs, rhs = match.group("lhs").strip(), match.group("rhs").strip()
@@ -172,7 +169,6 @@ def select_improved_mcf(record: dict[str, Any]) -> dict[str, Any]:
         return {"prediction": None, "selected_agent": None, "selection_reason": "no_valid_agent_answers",
                 "valid_agent_count": 0, "consensus_count": 0, "candidate_details": candidates}
 
-    # A repeated answer is strongest when at least one supporting trace verifies.
     counts = Counter(c["answer"] for c in valid)
     groups = []
     for answer, count in counts.items():
@@ -182,8 +178,6 @@ def select_improved_mcf(record: dict[str, Any]) -> dict[str, Any]:
         groups.append({"answer": answer, "count": count, "verified_count": verified_count,
                        "invalid_trace_count": invalid_trace_count, "members": members})
 
-    # Priority: verified 2+ consensus; any 2+ valid consensus; one verified answer;
-    # finally the original minimum AMR+embedding score among valid answers.
     consensus = [g for g in groups if g["count"] >= 2]
     verified_consensus = [g for g in consensus if g["verified_count"] >= 1]
     if verified_consensus:

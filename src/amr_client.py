@@ -43,8 +43,6 @@ class AMRClient:
             return 0.0
 
         try:
-            # Smatch returns:
-            # matching triples, triples in A, triples in B
             match_count, count_a, count_b = smatch.get_amr_match(
                 graph_a,
                 graph_b
@@ -61,7 +59,6 @@ class AMRClient:
 
             f1 = 2 * precision * recall / (precision + recall)
 
-            # Numerical safety: similarity must be in [0, 1].
             return max(0.0, min(1.0, float(f1)))
 
         except Exception as e:
