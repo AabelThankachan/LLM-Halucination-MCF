@@ -5,11 +5,6 @@ MODEL_NAME = "llama3.2:3b"
 
 
 def generate_response(prompt):
-    """
-    Send a prompt to the local Ollama model
-    and return its response.
-    """
-
     response = ollama.chat(
         model=MODEL_NAME,
         messages=[

@@ -1,19 +1,10 @@
 """
 Embedding + AMR Multi-agent Collaborative Filtering (MCF)
-Run with the project's .amrvenv environment.
 
 Outputs:
   results/amr_mcf_results.csv
   results/amr_mcf_raw_responses.json
 
-This is a student reproduction/variant, not an exact reproduction of the paper.
-It combines Nomic cosine similarity and AMR Smatch F1 with equal weights,
-then selects the normal response with the lowest combined similarity to the
-adversarial response, matching the minimum-similarity rule used in the current
-embedding-MCF experiment.
-
-Run:
-  python src/amr_mcf_filter.py
 """
 
 import csv
@@ -32,7 +23,7 @@ import smatch
 #from datasets import load_dataset
 
 
-# -------------------- CONFIGURATION --------------------
+#CONFIGURATION 
 NUM_QUESTIONS = 50
 NUM_NORMAL_AGENTS = 3
 LLM_MODEL = "llama3.2:3b"
@@ -89,7 +80,7 @@ Problem:
 """
 
 
-# -------------------- DATA / ANSWER HELPERS --------------------
+#DATA / ANSWER HELPERS
 def extract_gsm8k_answer(answer_text):
     """GSM8K gold answers normally end with #### followed by the answer."""
     matches = re.findall(r"####\s*(-?\d[\d,]*(?:\.\d+)?)", answer_text or "")
@@ -134,7 +125,7 @@ def answers_equal(predicted, gold):
     return normalize_number(predicted) == normalize_number(gold)
 
 
-# -------------------- OLLAMA HELPERS --------------------
+#OLLAMA HELPERS
 def generate_response(prompt):
     result = ollama.chat(
         model=LLM_MODEL,
@@ -160,7 +151,7 @@ def cosine_similarity(text_a, text_b):
     return score
 
 
-# -------------------- AMR / SMATCH --------------------
+#AMR / SMATCH
 class AMRClient:
     def __init__(self):
         print("Loading BART-large AMR parser...")
@@ -216,7 +207,7 @@ def trim_for_amr(text, max_chars=3500):
     return head + "\n" + final_line
 
 
-# -------------------- PERSISTENCE --------------------
+#PERSISTENCE 
 def load_existing():
     records = {}
     if JSON_PATH.exists():

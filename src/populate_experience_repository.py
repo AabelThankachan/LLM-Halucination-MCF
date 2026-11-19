@@ -9,14 +9,12 @@ from experience_repository import ExperienceRepository
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Keep real training experiences separate from synthetic smoke-test data.
 REPOSITORY_PATH = (
     PROJECT_ROOT / "storage" / "gsm8k_train_experiences.json"
 )
 
 
 def extract_answer_and_solution(answer_text: str):
-    """Extract the worked solution and final answer from a GSM8K record."""
     match = re.search(r"####\s*(-?\d[\d,]*(?:\.\d+)?)\s*$", answer_text.strip())
 
     if not match:

@@ -1,8 +1,7 @@
 
-"""AMR + embedding MCF with experience retrieval.
+"""
+AMR + embedding MCF with experience retrieval.
 
-This is an experimental extension of amr_mcf_filter.py.
-The original implementation and its result files are not modified.
 """
 
 import argparse
@@ -14,7 +13,6 @@ from pathlib import Path
 import numpy as np
 import ollama
 
-# Allow imports when running: python src/amr_mcf_with_experience.py
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
@@ -142,7 +140,6 @@ def process_question(index, row, repository, amr):
     question_id = str(index)
     question = row["question"]
 
-    # Gold answer is used only for evaluation, never included in prompts.
     gold = base.extract_gsm8k_answer(row["answer"])
     if gold is None:
         print(f"Skipping question {question_id}: no gold answer found.")
@@ -192,7 +189,6 @@ def process_question(index, row, repository, amr):
 
         print(f"  Normal agent {agent_index + 1}: {answer}")
 
-    # Keep the adversarial agent's prompt unchanged.
     adversarial_text = base.generate_response(
         base.ADVERSARIAL_PROMPT.format(question=question)
     )

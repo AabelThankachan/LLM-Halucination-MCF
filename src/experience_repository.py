@@ -1,11 +1,7 @@
 
-"""Persistent experience repository for the LLM-MCF project.
+"""
+Persistent experience repository 
 
-Stores solved tasks, retrieves semantically similar experiences, and
-supports a similarity-based outlier check.
-
-The outlier rule is an initial implementation choice and should be
-validated experimentally before claiming exact reproduction of the paper.
 """
 
 import json

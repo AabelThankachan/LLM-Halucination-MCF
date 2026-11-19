@@ -1,6 +1,6 @@
-"""Shared improved MCF decision logic for live baseline and experience runs.
+"""
+Shared improved MCF decision logic for live baseline and experience runs.
 
-Selection never reads gold_answer. Gold labels are used only after prediction for evaluation.
 """
 from __future__ import annotations
 import ast, math, re
@@ -22,8 +22,6 @@ def normalize_number(value: Any) -> Optional[str]:
     s = str(value).strip()
     if not s or s.lower() in {"none", "null", "nan", "n/a", "not found", "missing"}:
         return None
-    # Prefer a clean numeric answer. If the extracted field contains prose, use a
-    # clearly labelled final answer only; do not silently grab an arbitrary number.
     m = NUMBER_RE.match(s)
     if not m:
         m = FINAL_RE.search(s)
@@ -42,7 +40,6 @@ def normalize_number(value: Any) -> Optional[str]:
 
 
 def _safe_eval(node: ast.AST) -> float:
-    """Evaluate only basic arithmetic AST nodes; never use eval()."""
     if isinstance(node, ast.Expression):
         return _safe_eval(node.body)
     if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
@@ -74,7 +71,6 @@ def evaluate_expression(expression: str) -> float:
 
 
 def verify_math_trace(response: Any, answer: Optional[str]) -> dict[str, Any]:
-    """Conservative arithmetic verification of <<expression=result>> traces."""
     text = str(response or "")
     equations = EQUATION_RE.findall(text)
     if not equations:
@@ -156,7 +152,6 @@ def _score(record: dict[str, Any], i: int) -> float:
 
 
 def select_improved_mcf(record: dict[str, Any]) -> dict[str, Any]:
-    """Select a prediction without accessing gold_answer."""
     candidates = []
     for i in range(3):
         raw = _get_agent_answer(record, i)

@@ -6,11 +6,6 @@ MODEL_NAME = "nomic-embed-text"
 
 
 def get_embedding(text):
-    """
-    Generate an embedding for the supplied text
-    using the local nomic-embed-text model.
-    """
-
     response = ollama.embed(
         model=MODEL_NAME,
         input=text
@@ -20,10 +15,6 @@ def get_embedding(text):
 
 
 def cosine_similarity(vector_a, vector_b):
-    """
-    Calculate cosine similarity between two vectors.
-    """
-
     denominator = (
         np.linalg.norm(vector_a)
         * np.linalg.norm(vector_b)
