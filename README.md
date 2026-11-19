@@ -211,7 +211,7 @@ The gold answer is used to calculate evaluation accuracy after the prediction is
 
 The arithmetic verifier is a lightweight trace checker, not a complete mathematical proof system. If an answer has no parseable arithmetic equations, its trace may be marked `unverified`; an `invalid_trace` status should also be interpreted cautiously because natural-language equation formatting can challenge the parser.
 
-## 9. Similarity calculation
+## 10. Similarity calculation
 
 For each normal response and the adversarial response:
 
@@ -229,7 +229,7 @@ combined_score = 0.5 * normalized_embedding_similarity
 The original MCF candidate is the normal response with the minimum combined similarity to the adversarial response. The improved selector retains this score as a fallback after validity, consensus, and verification checks.
 
 
-## 10. Output files
+## 11. Output files
 
 | Output | Description |
 |---|---|
@@ -240,7 +240,7 @@ The original MCF candidate is the normal response with the minimum combined simi
 
 The CSV files are convenient for accuracy calculations and spreadsheet analysis. The JSON files preserve more detailed responses and intermediate information.
 
-## 11. Limitations
+## 12. Limitations
 
 - The project uses a relatively small local language model (`llama3.2:3b`), so reasoning quality and output consistency are constrained by the model.
 - The adversarial agent is prompted to make a plausible mistake; it is not guaranteed to produce a flawed answer on every question.
