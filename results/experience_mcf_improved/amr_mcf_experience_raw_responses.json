@@ -6690,5 +6690,259 @@
     "agent3_valid": true,
     "agent3_math_status": "unverified",
     "agent3_math_reason": "No parseable arithmetic equations found in the response."
+  },
+  {
+    "question_id": "50",
+    "question": "Lloyd has an egg farm. His chickens produce 252 eggs per day and he sells them for $2 per dozen. How much does Lloyd make on eggs per week?",
+    "gold_answer": "294",
+    "agent_responses": [
+      "To find out how much Lloyd makes on eggs per week, we need to calculate the total amount of money he makes in a week.\n\nStep 1: Calculate the number of eggs Lloyd sells in a week\nSince Lloyd's chickens produce 252 eggs per day, we multiply this number by 7 to get the total number of eggs sold in a week:\n252 eggs/day * 7 days = 1764 eggs\n\nStep 2: Calculate the number of dozens of eggs Lloyd sells in a week\nSince there are 12 eggs in a dozen, we divide the total number of eggs by 12:\n1764 eggs / 12 eggs/dozen = 147 dozen eggs\n\nStep 3: Calculate the total amount of money Lloyd makes in a week\nSince Lloyd sells eggs for $2 per dozen, we multiply the number of dozens by the price per dozen:\n147 dozen eggs * $2/dozen = $294\n\nFINAL_ANSWER: 294",
+      "To find out how much Lloyd makes on eggs per week, we need to first calculate how much he makes per day and then multiply it by 7.\n\nLloyd's chickens produce 252 eggs per day, and he sells them for $2 per dozen. Since there are 12 eggs in a dozen, we can calculate the number of dozens produced per day as follows:\n\n252 eggs / 12 eggs/dozen = 21 dozen eggs per day\n\nSince each dozen sells for $2, we can calculate the daily revenue as follows:\n\n21 dozen eggs * $2/dozen = $42 per day\n\nTo find out how much Lloyd makes per week, we multiply the daily revenue by 7:\n\n$42 per day * 7 days per week = $294 per week\n\nTherefore, Lloyd makes $294 per week on eggs.\n\nFINAL_ANSWER: 294",
+      "To find out how much Lloyd makes on eggs per week, we need to calculate the total amount of money he makes from selling eggs per day and then multiply it by 7.\n\nFirst, we need to find out how many dozens of eggs Lloyd sells per day. Since he sells 252 eggs per day and there are 12 eggs in a dozen, we can divide 252 by 12 to get the number of dozens:\n\n252 ÷ 12 = 21\n\nSince Lloyd sells each dozen for $2, we can multiply the number of dozens by $2 to find the total amount of money he makes per day:\n\n21 × $2 = $42\n\nNow, we need to multiply the daily amount by 7 to find the weekly amount:\n\n$42 × 7 = $294\n\nTherefore, Lloyd makes $294 per week.\n\nFINAL_ANSWER: 294"
+    ],
+    "agent_answers": [
+      "294",
+      "294",
+      "294"
+    ],
+    "agent1_answer": "294",
+    "agent2_answer": "294",
+    "agent3_answer": "294",
+    "agent1_correct": true,
+    "agent2_correct": true,
+    "agent3_correct": true,
+    "adversarial_response": "To calculate how much Lloyd makes on eggs per week, we need to first find out how many eggs he sells per week. Since his chickens produce 252 eggs per day, we can multiply this by 7 to get the total number of eggs per week:\n\n252 eggs/day × 7 days/week = 1764 eggs/week\n\nSince Lloyd sells eggs by the dozen, we need to divide the total number of eggs per week by 12 to get the number of dozens:\n\n1764 eggs/week ÷ 12 eggs/dozen = 147 dozen/week\n\nFinally, we can multiply the number of dozens by the price per dozen to find out how much Lloyd makes per week:\n\n147 dozen/week × $2/dozen = $294/week\n\nTherefore, Lloyd makes $294 per week on eggs.\n\nFINAL_ANSWER: 294",
+    "adversarial_answer": "294",
+    "embedding_similarities": [
+      0.985181450843811,
+      0.9893937110900879,
+      0.9743625521659851
+    ],
+    "amr_similarities": [
+      0.5461254612546126,
+      0.4939759036144578,
+      0.503030303030303
+    ],
+    "combined_scores": [
+      0.7693580933382591,
+      0.7443363795797509,
+      0.7451057895566477
+    ],
+    "embedding_similarity_agent1": 0.985181450843811,
+    "embedding_similarity_agent2": 0.9893937110900879,
+    "embedding_similarity_agent3": 0.9743625521659851,
+    "amr_similarity_agent1": 0.5461254612546126,
+    "amr_similarity_agent2": 0.4939759036144578,
+    "amr_similarity_agent3": 0.503030303030303,
+    "combined_score_agent1": 0.7693580933382591,
+    "combined_score_agent2": 0.7443363795797509,
+    "combined_score_agent3": 0.7451057895566477,
+    "selected_agent": 2,
+    "mcf_answer": "294",
+    "mcf_correct": true,
+    "mcf_selection_reason": "valid_agent_consensus",
+    "is_outlier": false,
+    "outlier_score": {
+      "z_score": -0.8474881574661973,
+      "query_mean_similarity": 0.5062261948087188,
+      "repository_mean_similarity": 0.5266470928249474,
+      "repository_std_dev": 0.024095791588737446,
+      "is_outlier": false,
+      "reason": "No low-similarity outlier detected."
+    },
+    "outlier_z_score": -0.8474881574661973,
+    "retrieved_count": 3,
+    "retrieved_experience_ids": [
+      65,
+      88,
+      66
+    ],
+    "retrieved_experiences": [
+      {
+        "id": 65,
+        "task_description": "James earns $20 an hour while working at his main job.  He earns 20% less while working his second job.  He works 30 hours at his main job and half that much at his second job.  How much does he earn per week?",
+        "solution_process": "James earns 20*.2=$<<20*.2=4>>4 less while working his second job\nSo he earns 20-4=$<<20-4=16>>16 an hour\nAt his first job he earns 20*30=$<<20*30=600>>600\nHe works 30/2=<<30/2=15>>15 hours at his second job\nSo he earns 15*16=$<<15*16=240>>240\nSo he earns 600+240=$<<600+240=840>>840 a week",
+        "answer": "840",
+        "source": "GSM8K",
+        "validation_status": "validated",
+        "similarity": 0.6648159450607293
+      },
+      {
+        "id": 88,
+        "task_description": "John's cow weighs 400 pounds.  It increased its weight to 1.5 times its starting weight.  He is able to sell the cow for $3 per pound.  How much more is it worth after gaining the weight?",
+        "solution_process": "The cow initially weighs 400*1.5=<<400*1.5=600>>600 pounds\nSo it gained 600 - 400 = <<600-400=200>>200 pounds\nSo its value increased by 200*$3 = $<<200*3=600>>600",
+        "answer": "600",
+        "source": "GSM8K",
+        "validation_status": "validated",
+        "similarity": 0.6308886371672747
+      },
+      {
+        "id": 66,
+        "task_description": "Lee mows one lawn and charges $33. Last week he mowed 16 lawns and three customers each gave him a $10 tip. How many dollars did Lee earn mowing lawns last week?",
+        "solution_process": "33 * 16 = $<<33*16=528>>528\n3 * 10 = $<<3*10=30>>30\n528 + 30 = $<<528+30=558>>558\nLee earned $558 mowing lawns last week.",
+        "answer": "558",
+        "source": "GSM8K",
+        "validation_status": "validated",
+        "similarity": 0.6308084602041644
+      }
+    ],
+    "experience_prompt": "Example 1\nTask: James earns $20 an hour while working at his main job.  He earns 20% less while working his second job.  He works 30 hours at his main job and half that much at his second job.  How much does he earn per week?\nSolution: James earns 20*.2=$<<20*.2=4>>4 less while working his second job\nSo he earns 20-4=$<<20-4=16>>16 an hour\nAt his first job he earns 20*30=$<<20*30=600>>600\nHe works 30/2=<<30/2=15>>15 hours at his second job\nSo he earns 15*16=$<<15*16=240>>240\nSo he earns 600+240=$<<600+240=840>>840 a week\nAnswer: 840\nSimilarity: 0.6648\n\nExample 2\nTask: John's cow weighs 400 pounds.  It increased its weight to 1.5 times its starting weight.  He is able to sell the cow for $3 per pound.  How much more is it worth after gaining the weight?\nSolution: The cow initially weighs 400*1.5=<<400*1.5=600>>600 pounds\nSo it gained 600 - 400 = <<600-400=200>>200 pounds\nSo its value increased by 200*$3 = $<<200*3=600>>600\nAnswer: 600\nSimilarity: 0.6309\n\nExample 3\nTask: Lee mows one lawn and charges $33. Last week he mowed 16 lawns and three customers each gave him a $10 tip. How many dollars did Lee earn mowing lawns last week?\nSolution: 33 * 16 = $<<33*16=528>>528\n3 * 10 = $<<3*10=30>>30\n528 + 30 = $<<528+30=558>>558\nLee earned $558 mowing lawns last week.\nAnswer: 558\nSimilarity: 0.6308",
+    "method": "AMR + embedding MCF with experience retrieval",
+    "original_mcf_answer": "294",
+    "original_mcf_correct": true,
+    "valid_agent_count": 3,
+    "consensus_count": 3,
+    "improved_candidate_details": [
+      {
+        "agent": 1,
+        "raw_answer": "294",
+        "answer": "294",
+        "valid": true,
+        "verification": "unverified",
+        "verification_reason": "No parseable arithmetic equations found in the response.",
+        "equations_checked": 0,
+        "score": 0.7693580933382591
+      },
+      {
+        "agent": 2,
+        "raw_answer": "294",
+        "answer": "294",
+        "valid": true,
+        "verification": "unverified",
+        "verification_reason": "No parseable arithmetic equations found in the response.",
+        "equations_checked": 0,
+        "score": 0.7443363795797509
+      },
+      {
+        "agent": 3,
+        "raw_answer": "294",
+        "answer": "294",
+        "valid": true,
+        "verification": "invalid_trace",
+        "verification_reason": "Arithmetic mismatch: 12 = 12, but trace states 21 = 21.",
+        "equations_checked": 1,
+        "score": 0.7451057895566477
+      }
+    ],
+    "agent1_valid": true,
+    "agent1_math_status": "unverified",
+    "agent1_math_reason": "No parseable arithmetic equations found in the response.",
+    "agent2_valid": true,
+    "agent2_math_status": "unverified",
+    "agent2_math_reason": "No parseable arithmetic equations found in the response.",
+    "agent3_valid": true,
+    "agent3_math_status": "invalid_trace",
+    "agent3_math_reason": "Arithmetic mismatch: 12 = 12, but trace states 21 = 21."
+  },
+  {
+    "question_id": "51",
+    "question": "Tom's ship can travel at 10 miles per hour.  He is sailing from 1 to 4 PM.  He then travels back at a rate of 6 mph.  How long does it take him to get back?",
+    "gold_answer": "5",
+    "agent_responses": [
+      "To solve this problem, we need to find the time it takes Tom to travel back from 4 PM to 1 PM.\n\nStep 1: Find the distance Tom traveled from 1 to 4 PM.\nDistance = Speed x Time\nSince Tom traveled for 3 hours, we can find the distance:\nDistance = 10 mph x 3 hours = 30 miles\n\nStep 2: Find the time it takes Tom to travel back from 4 PM to 1 PM.\nSpeed = 6 mph\nDistance = 30 miles\nTime = Distance / Speed\nTime = 30 miles / 6 mph\nTime = 5 hours\n\nTherefore, it takes Tom 5 hours to get back.\n\nFINAL_ANSWER: 5",
+      "To solve this problem, we need to find the time it takes Tom to travel back from 4 PM to 1 PM.\n\nFirst, we need to find the distance Tom traveled from 1 PM to 4 PM. We can do this by multiplying the speed (10 mph) by the time (3 hours).\n\nDistance = Speed x Time\nDistance = 10 mph x 3 hours\nDistance = 30 miles\n\nNow, we need to find the time it takes Tom to travel back from 4 PM to 1 PM. We can do this by dividing the distance (30 miles) by the speed (6 mph).\n\nTime = Distance / Speed\nTime = 30 miles / 6 mph\nTime = 5 hours\n\nTherefore, it takes Tom 5 hours to get back.\n\nFINAL_ANSWER: 5",
+      "To solve this problem, we need to calculate the time it takes for Tom to travel back from 4 PM to 1 PM.\n\nFirst, we need to find the distance Tom traveled from 1 PM to 4 PM. Since he traveled at 10 mph, we can use the formula:\n\ndistance = speed × time\n\nWe know the speed (10 mph) and the time interval (3 hours, from 1 PM to 4 PM). We can plug in the values to find the distance:\n\ndistance = 10 mph × 3 hours = 30 miles\n\nNow, we need to find the time it takes for Tom to travel back from 4 PM to 1 PM. We can use the same formula:\n\ntime = distance ÷ speed\n\nWe know the distance (30 miles) and the speed (6 mph). We can plug in the values to find the time:\n\ntime = 30 miles ÷ 6 mph = 5 hours\n\nTherefore, it takes Tom 5 hours to get back.\n\nFINAL_ANSWER: 5"
+    ],
+    "agent_answers": [
+      "5",
+      "5",
+      "5"
+    ],
+    "agent1_answer": "5",
+    "agent2_answer": "5",
+    "agent3_answer": "5",
+    "agent1_correct": true,
+    "agent2_correct": true,
+    "agent3_correct": true,
+    "adversarial_response": "To solve this problem, let's break it down into two parts: the trip from 1 to 4 PM, and the return trip from 4 to 1 PM.\n\nFor the first part, Tom travels from 1 to 4 PM at a rate of 10 mph. Since he is traveling for 3 hours, the distance he covers is:\n\nDistance = Speed x Time = 10 mph x 3 hours = 30 miles\n\nNow, for the return trip, Tom travels from 4 to 1 PM at a rate of 6 mph. Since he is traveling from 4 to 1 PM, he is essentially traveling from 4 to 1 PM again, so the distance he covers is the same as the distance he covered on the outward trip, which is 30 miles.\n\nSince the distance is the same, the time it takes Tom to cover the same distance on the return trip is:\n\nTime = Distance / Speed = 30 miles / 6 mph = 5 hours\n\nTherefore, it takes Tom 5 hours to get back.\n\nFINAL_ANSWER: 5",
+    "adversarial_answer": "5",
+    "embedding_similarities": [
+      0.9344119429588318,
+      0.9240325093269348,
+      0.924927294254303
+    ],
+    "amr_similarities": [
+      0.43290043290043284,
+      0.3800904977375566,
+      0.3703703703703704
+    ],
+    "combined_scores": [
+      0.7000532021899244,
+      0.671053376200512,
+      0.666417008748761
+    ],
+    "embedding_similarity_agent1": 0.9344119429588318,
+    "embedding_similarity_agent2": 0.9240325093269348,
+    "embedding_similarity_agent3": 0.924927294254303,
+    "amr_similarity_agent1": 0.43290043290043284,
+    "amr_similarity_agent2": 0.3800904977375566,
+    "amr_similarity_agent3": 0.3703703703703704,
+    "combined_score_agent1": 0.7000532021899244,
+    "combined_score_agent2": 0.671053376200512,
+    "combined_score_agent3": 0.666417008748761,
+    "selected_agent": 3,
+    "mcf_answer": "5",
+    "mcf_correct": true,
+    "mcf_selection_reason": "valid_agent_consensus",
+    "is_outlier": true,
+    "outlier_score": {
+      "z_score": -1.3226079165123554,
+      "query_mean_similarity": 0.4947778081150514,
+      "repository_mean_similarity": 0.5266470928249474,
+      "repository_std_dev": 0.024095791588737446,
+      "is_outlier": true,
+      "reason": "Low similarity to the repository."
+    },
+    "outlier_z_score": -1.3226079165123554,
+    "retrieved_count": 0,
+    "retrieved_experience_ids": [],
+    "retrieved_experiences": [],
+    "experience_prompt": "No relevant previous experiences were retrieved.",
+    "method": "AMR + embedding MCF with experience retrieval",
+    "original_mcf_answer": "5",
+    "original_mcf_correct": true,
+    "valid_agent_count": 3,
+    "consensus_count": 3,
+    "improved_candidate_details": [
+      {
+        "agent": 1,
+        "raw_answer": "5",
+        "answer": "5",
+        "valid": true,
+        "verification": "unverified",
+        "verification_reason": "No parseable arithmetic equations found in the response.",
+        "equations_checked": 0,
+        "score": 0.7000532021899244
+      },
+      {
+        "agent": 2,
+        "raw_answer": "5",
+        "answer": "5",
+        "valid": true,
+        "verification": "unverified",
+        "verification_reason": "No parseable arithmetic equations found in the response.",
+        "equations_checked": 0,
+        "score": 0.671053376200512
+      },
+      {
+        "agent": 3,
+        "raw_answer": "5",
+        "answer": "5",
+        "valid": true,
+        "verification": "unverified",
+        "verification_reason": "No parseable arithmetic equations found in the response.",
+        "equations_checked": 0,
+        "score": 0.666417008748761
+      }
+    ],
+    "agent1_valid": true,
+    "agent1_math_status": "unverified",
+    "agent1_math_reason": "No parseable arithmetic equations found in the response.",
+    "agent2_valid": true,
+    "agent2_math_status": "unverified",
+    "agent2_math_reason": "No parseable arithmetic equations found in the response.",
+    "agent3_valid": true,
+    "agent3_math_status": "unverified",
+    "agent3_math_reason": "No parseable arithmetic equations found in the response."
   }
 ]
