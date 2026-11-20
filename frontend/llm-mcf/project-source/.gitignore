@@ -1,0 +1,10 @@
+.venv/
+armvenv/
+.amrvenv/
+__pycache__/
+*.pyc
+.env
+data/**
+experiments/**
+old_results/**
+Logs/**

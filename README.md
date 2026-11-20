@@ -1,4 +1,4 @@
-# LLM Hallucination Detection using Multi-Agent Collaborative Filtering (MCF)
+# Mitigating LLM Hallucinations using Multi-Agent Collaborative Filtering with AMR, Experience Retrieval and Answer Consensus
 
 A local, multi-agent framework for evaluating and selecting answers to mathematical word problems. The project uses multiple LLM agents, semantic and Abstract Meaning Representation (AMR) similarity, an adversarial challenge agent, and an improved answer selector. An optional Experience-MCF pipeline retrieves related examples from a repository built from GSM8K training data.
 
