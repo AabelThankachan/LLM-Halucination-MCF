@@ -8,4 +8,5 @@ data/**
 experiments/**
 old_results/**
 Logs/**
-project-source/**
+frontend/project-source/**
+frontend/data/**
