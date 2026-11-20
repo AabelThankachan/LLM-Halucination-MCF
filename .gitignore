@@ -1,7 +1,7 @@
 .venv/
 armvenv/
 .amrvenv/
-__pycache__/
+src__pycache__/
 *.pyc
 .env
 data/**
