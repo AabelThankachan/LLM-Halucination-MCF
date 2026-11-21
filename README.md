@@ -248,3 +248,8 @@ The CSV files are convenient for accuracy calculations and spreadsheet analysis.
 - The arithmetic verifier only checks equations it can parse and is not a general-purpose proof checker.
 - Experience retrieval did not return examples for every evaluated question.
 
+## 13. Contributors
+
+- Aabel Thankachan
+- Manan Pruthi
+
